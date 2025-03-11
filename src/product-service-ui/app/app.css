@@ -1,0 +1,33 @@
+@import url("https://fonts.googleapis.com/css2?family=Fairplay+Display&display=swap");
+@import "tailwindcss";
+@plugin "daisyui";
+
+
+@font-face {
+  font-family: 'Tiempos';
+  src: url('/fonts/TestTiemposText-Regular.otf') format('otf');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@theme {
+  --font-fairplay: "Fairplay Display", serif;
+  --font-tiempos: "Tiempos", serif;
+  --font-sans: "JetBrains Mono", ui-sans-serif, system-ui, sans-serif,
+    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
+:root {
+  --color-alcove-bg: #fff1de;
+  --color-alcove-bg-dark: #0f0624;
+}
+
+html,
+body {
+  @apply bg-[var(--color-alcove-bg)];
+
+  @media (prefers-color-scheme: light) {
+    color-scheme: light;
+  }
+}
