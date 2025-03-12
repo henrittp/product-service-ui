@@ -1,5 +1,7 @@
-import { useState } from "react";
+// app/welcome/welcome.tsx
+import { useState, useEffect } from "react";
 import logoLight from "./5087579.png";
+import { setAuthToken } from "../utils/auth";
 
 export function Welcome() {
   const [username, setUsername] = useState("");
@@ -7,13 +9,17 @@ export function Welcome() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
+  // We'll use window.location instead of useNavigate
+  // This works in both server and client environments
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     setError("");
 
     try {
-      const response = await fetch("http://localhost:3000/login", {
+      // Use the proxy configuration for API requests
+      const response = await fetch("/api/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
@@ -24,15 +30,54 @@ export function Welcome() {
       }
 
       const data = await response.json();
-      // Armazena o token JWT
-      localStorage.setItem("authToken", data.token);
+      console.log("Login response:", data);
 
-      // Redireciona para área restrita
-      window.location.href = "/dashboard";
+      // Use the auth utility to store the token
+      setAuthToken(data.token);
+      console.log(
+        "Token stored successfully:",
+        !!localStorage.getItem("authToken")
+      );
+
+      // Navigate to products page
+      window.location.href = "/products";
     } catch (err) {
       setError(err.message);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  // For testing API connectivity directly
+  const testProductsApi = async () => {
+    try {
+      // Safe localStorage access
+      let token = null;
+      if (typeof window !== "undefined") {
+        token = localStorage.getItem("authToken");
+      }
+
+      if (!token) {
+        alert("No token found! Please login first.");
+        return;
+      }
+
+      const response = await fetch("/api/products", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`API Error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log("API Test Successful:", data);
+      alert(`Successfully fetched ${data.length || 0} products!`);
+    } catch (error) {
+      console.error("API Test Failed:", error);
+      alert(`API Test Failed: ${error.message}`);
     }
   };
 
@@ -51,7 +96,7 @@ export function Welcome() {
           </h1>
         </div>
 
-        {/* Card com proporções Apple-like e aspect ratio melhorado */}
+        {/* Card with proporções Apple-like e aspect ratio melhorado */}
         <div
           className="w-[90%] sm:w-[85%] max-w-[380px] overflow-hidden bg-white/20 backdrop-blur-xl 
           rounded-2xl shadow-gray-500/40 shadow-2xl
@@ -147,6 +192,16 @@ export function Welcome() {
                 {isLoading ? "Logging in..." : "Initialize"}
               </button>
             </form>
+
+            {/* Debug/Test button - can be removed in production */}
+            <div className="mt-4 text-center">
+              <button
+                onClick={testProductsApi}
+                className="text-xs text-indigo-500 underline hover:text-indigo-600"
+              >
+                Test API Connection
+              </button>
+            </div>
           </div>
         </div>
 

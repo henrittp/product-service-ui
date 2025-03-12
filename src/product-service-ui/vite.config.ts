@@ -20,6 +20,16 @@ export default defineConfig({
   server: {
     host: true, // Permite acesso a partir de outros dispositivos na rede local
     port: 4000, // Ou a porta que você desejar
+    proxy: {
+      "/api": {
+        target: "http://localhost:3000",
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ""),
+      },
+    },
+    allowedHosts: [
+      "dec9-2804-7f0-b380-2e06-8095-8fe6-fe01-e32c.ngrok-free.app",
+    ],
   },
   legacy: { proxySsrExternalModules: true },
 });
